@@ -182,5 +182,3 @@ export default {
   },
 };
 </script>
-
-<style src="../public/app.css"></style>
