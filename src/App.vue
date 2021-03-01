@@ -41,6 +41,11 @@
                     </svg>
                     Добавить
                 </button>
+                <div
+                        v-for="item in filteredTickerList()"
+                >
+                    <span>{{item}}</span>
+                </div>
             </section>
             <template v-if="tickers.length">
                 <div>
@@ -151,6 +156,8 @@
 <script>
     export default {
         name: "App",
+        api_key: "399f04db6e2aeedf3e1b65e92bfd33869722b6c3c856cf1797cb39a3ae9148fb",
+        tickerList: [],
 
         data() {
             return {
@@ -181,6 +188,16 @@
 
         methods: {
 
+            async getAllCoins(){
+                const f = await fetch('https://min-api.cryptocompare.com/data/all/coinlist?summary=true')
+                this.tickerList = await f.json();
+            },
+
+            filteredTickerList(){
+                const data =  this.tickerList.filter(item=>item.name.includes(this.ticker));
+                return data.slice(0, 3)
+            },
+
             filteredTickers(){
                 const start = (this.page - 1) * 6;
                 const end = this.page*6;
@@ -191,10 +208,8 @@
             },
 
             async getTickerPrice(tickerName) {
-                const api_key =
-                    "399f04db6e2aeedf3e1b65e92bfd33869722b6c3c856cf1797cb39a3ae9148fb";
                 const f = await fetch(
-                    `https://min-api.cryptocompare.com/data/price?fsym=${tickerName}&tsyms=USD&apo_key=${api_key}`
+                    `https://min-api.cryptocompare.com/data/price?fsym=${tickerName}&tsyms=USD&apo_key=${this.api_key}`
                 );
                 const data = await f.json();
                 this.tickers.find((t) => t.name == tickerName).price =
