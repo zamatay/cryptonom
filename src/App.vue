@@ -44,7 +44,9 @@
                 <div
                         v-for="item in filteredTickerList()"
                 >
-                    <span>{{item}}</span>
+                    <button my-4 inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-full text-white bg-gray-600 hover:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500>
+                        {{item}}
+                    </button>
                 </div>
             </section>
             <template v-if="tickers.length">
@@ -157,7 +159,6 @@
     export default {
         name: "App",
         api_key: "399f04db6e2aeedf3e1b65e92bfd33869722b6c3c856cf1797cb39a3ae9148fb",
-        tickerList: [],
 
         data() {
             return {
@@ -180,6 +181,7 @@
                 this.page = windowData.page;
             }
             const tickersData = localStorage.getItem('cryptoList');
+            this.setAllCoins();
             if (tickersData) {
                 this.tickers = JSON.parse(tickersData);
                 this.tickers.forEach(item => this.subscribeToUpdate(item.name))
@@ -188,14 +190,24 @@
 
         methods: {
 
-            async getAllCoins(){
+            async setAllCoins(){
                 const f = await fetch('https://min-api.cryptocompare.com/data/all/coinlist?summary=true')
-                this.tickerList = await f.json();
+                const data = await f.json();
+                this.tickerList = [];
+                this.tickerList = Object.keys(data.Data)
+                this.tickerValues = Object.values(data.Data)
             },
 
             filteredTickerList(){
-                const data =  this.tickerList.filter(item=>item.name.includes(this.ticker));
-                return data.slice(0, 3)
+                if (!this.tickerList) return;
+                const data = [];
+                for (let i=0; i <= this.tickerValues.length; i++){
+                    if (this.tickerValues[i].Symbol.includes(this.ticker) || this.ticker == undefined){
+                        data.push(this.tickerValues[i].Symbol);
+                    }
+                    if (data.length == 4) break;
+                }
+                return data
             },
 
             filteredTickers(){
